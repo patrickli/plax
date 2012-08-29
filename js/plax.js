@@ -26,7 +26,8 @@
 (function ($) {
 
   var maxfps             = 25,
-      delay              = 1 / maxfps * 1000,
+      //delay              = 1 / maxfps * 1000,
+      delay              = 0,
       lastRender         = new Date().getTime(),
       layers             = [],
       plaxActivityTarget = $(window),
@@ -53,6 +54,7 @@
         "xRange": $(this).data('xrange') || 0,
         "yRange": $(this).data('yrange') || 0,
         "invert": $(this).data('invert') || false,
+        "css3d": (Modernizr && Modernizr.csstransforms3d) ? true : false,
         "background": $(this).data('background') || false
       }
 
@@ -90,12 +92,17 @@
 
         // Figure out where the element is positioned, then reposition it from the top/left
         var position = layer.obj.position()
-        layer.obj.css({
-          'top'   : position.top,
-          'left'  : position.left,
+        var css = {
           'right' :'',
           'bottom':''
-        })
+        }
+        if (layer.css3d) {
+          css.transform = 'translate3d(' + position.left + 'px, ' + position.top + 'px, 0px)';
+        } else {
+          css.top = position.top;
+          css.left = position.left;
+        }
+        layer.obj.css(css)
         layer.startX = this.offsetLeft
         layer.startY = this.offsetTop
       }
@@ -260,7 +267,7 @@
 
     var hRatio = x/((motionEnabled == true) ? motionMax : plaxActivityTarget.width()),
         vRatio = y/((motionEnabled == true) ? motionMax : plaxActivityTarget.height()),
-        layer, i
+        layer, i, css
 
     for (i = layers.length; i--;) {
       layer = layers[i]
@@ -269,9 +276,20 @@
       if(layer.background) {
         layer.obj.css('background-position', newX+'px '+newY+'px')
       } else {
+        if (layer.css3d) {
+          css = {
+            'transform': 'translate3d(' + newX + 'px, ' + newY + 'px, 0px)',
+            'left': 0,
+            'top': 0
+          }
+        } else {
+          css = {
+            'left': newX,
+            'top': newY
+          }
+        }
         layer.obj
-          .css('left', newX)
-          .css('top', newY)
+          .css(css)
       }
     }
   }
