@@ -96,9 +96,7 @@
           'right' :'',
           'bottom':''
         }
-        if (layer.css3d) {
-          css.transform = 'translate3d(' + position.left + 'px, ' + position.top + 'px, 0px)';
-        } else {
+        if (!layer.css3d) {
           css.top = position.top;
           css.left = position.left;
         }
